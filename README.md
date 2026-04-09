@@ -128,3 +128,28 @@ systemctl stop tg-poll-bot
 # отключить автозапуск
 systemctl disable tg-poll-bot
 ```
+
+---
+
+## Разработка сайта (craftboard.online)
+
+### Флоу правок
+
+1. Правим файлы локально в `/Users/korytov/projects/craftboard-site/`
+2. Проверяем в браузере: `python3 -m http.server 8080` → http://localhost:8080
+3. Пользователь подтверждает
+4. `git commit -m "..." && git push` — GitHub Actions автоматически деплоит на сервер
+
+### Структура сайта
+
+```
+craftboard-site/
+├── index.html          # главная
+├── tg-poll-bot.html    # страница бота
+└── server.html         # страница сервера
+```
+
+### Сервер
+
+- VPS: `195.133.49.214`, nginx, web root: `/var/www/html`
+- Деплой: `.github/workflows/deploy.yml` → git pull на сервере
