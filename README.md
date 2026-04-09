@@ -1,59 +1,71 @@
-# CraftBoard
+# CraftBoard Site
 
-Современный портал для управления и отслеживания проектов.
+Статический сайт-витрина для `craftboard.online` с тремя страницами:
+- главная (`index.html`)
+- сервер (`server.html`)
+- бот (`tg-poll-bot.html`)
 
-## Описание
+## Как и откуда рендерится контент
 
-CraftBoard — это тёмная, минималистичная веб-страница для отображения статуса проектов и сервисов в реальном времени.
+### 1) Главная страница (`index.html`)
+- Рендер: полностью статический HTML + CSS + встроенный JS.
+- Что делает JS:
+	- открывает модалку `ServerConfig`;
+	- проверяет пароль локально в браузере (`btoa(input)` сравнивается с зашитым значением);
+	- при успехе переводит на `server.html`.
+- Карточка бота ведет на `tg-poll-bot.html`.
 
-## Возможности
+### 2) Страница сервера (`server.html`)
+- Базовый контент (разделы, таблицы, структура) статический.
+- Динамика: блоки статуса/ресурсов обновляются через `fetch('/api/status')`.
+- Ожидаемый формат API:
+	- `uptime`, `cpu`
+	- `ram: { used_mb, total_mb, percent }`
+	- `disk: { used_gb, total_gb, percent }`
+	- `services: { nginx: 'active', 'tg-poll-bot': 'active', ... }`
+- Если API недоступен, UI показывает `Нет данных`.
 
-- 🎨 Тёмная тема с современным дизайном
-- 📱 Адаптивный дизайн (desktop + mobile)
-- 🖥️ Серверный бейдж с информацией о хосте
-- 🔐 Модальная система авторизации
-- ✨ Плавные анимации и переходы
+### 3) Страница бота (`tg-poll-bot.html`)
+- Контент страницы не хардкодится в HTML.
+- При загрузке выполняется `fetch('README.md', { cache: 'no-store' })`.
+- Полученный Markdown рендерится в HTML через `marked.js` (CDN).
+- Если `README.md` не загрузился, показывается сообщение об ошибке.
 
-## Файлы проекта
+Итог: единственный markdown-источник для страницы бота на сайте - это текущий `README.md` в этом же репозитории.
 
-- `index.html` — главная страница с карточками проектов
-- `server.html` — страница информации о сервере
-- `tg-poll-bot.html` — страница бота для опросов
+## Структура проекта
 
-## Развёртывание
+```text
+craftboard-site/
+├── index.html                 # главная
+├── server.html                # сервер + /api/status
+├── tg-poll-bot.html           # рендер README.md через marked.js
+├── README.md                  # документация и контент для страницы бота
+└── .github/workflows/deploy.yml
+```
+
+## Локальный запуск
 
 ```bash
-# Клонировать репозиторий
-git clone https://github.com/keastayer-cell/craftboard-site.git
-
-# Запустить локальный сервер
 cd craftboard-site
 python3 -m http.server 8000
-
-# Открыть в браузере
 # http://localhost:8000
 ```
 
-## Развёртывание на VPS
+Примечание: локально `/api/status` обычно не существует, поэтому на `server.html` будет `Нет данных`.
 
-```bash
-# На сервере
-cd /var/www
-git clone https://github.com/keastayer-cell/craftboard-site.git craftboard
+## Продакшен-деплой
 
-# Если используется nginx
-# Настроить root на папку /var/www/craftboard
-```
+Деплой выполняется GitHub Actions (`Deploy Site`) при push в `main`:
+- SSH на VPS (через `VPS_HOST`, `VPS_USER`, `DEPLOY_KEY`)
+- переход в `/var/www/craftboard`
+- `git fetch origin && git reset --hard origin/main`
 
-## Стуктура
-
-```
-craftboard-site/
-├── index.html           # главная страница
-├── server.html          # информация о сервере
-├── tg-poll-bot.html     # страница бота
-└── README.md            # этот файл
-```
+Требования на сервере:
+- установлен `git`;
+- `/var/www/craftboard` - это git-репозиторий `keastayer-cell/craftboard-site`;
+- ключ из секрета `DEPLOY_KEY` имеет доступ к репозиторию;
+- веб-сервер отдает статические файлы из `/var/www/craftboard`.
 
 ## Лицензия
 
