@@ -10,19 +10,19 @@
 ### 1) Главная страница (`index.html`)
 - Рендер: полностью статический HTML + CSS + встроенный JS.
 - Что делает JS:
-	- открывает модалку `ServerConfig`;
-	- проверяет пароль локально в браузере (`btoa(input)` сравнивается с зашитым значением);
-	- при успехе переводит на `server.html`.
+  - открывает модалку `ServerConfig`;
+  - проверяет пароль локально в браузере (`btoa(input)` сравнивается с зашитым значением);
+  - при успехе переводит на `server.html`.
 - Карточка бота ведет на `tg-poll-bot.html`.
 
 ### 2) Страница сервера (`server.html`)
 - Базовый контент (разделы, таблицы, структура) статический.
 - Динамика: блоки статуса/ресурсов обновляются через `fetch('/api/status')`.
 - Ожидаемый формат API:
-	- `uptime`, `cpu`
-	- `ram: { used_mb, total_mb, percent }`
-	- `disk: { used_gb, total_gb, percent }`
-	- `services: { nginx: 'active', 'tg-poll-bot': 'active', ... }`
+  - `uptime`, `cpu`
+  - `ram: { used_mb, total_mb, percent }`
+  - `disk: { used_gb, total_gb, percent }`
+  - `services: { nginx: 'active', 'tg-poll-bot': 'active', ... }`
 - Если API недоступен, UI показывает `Нет данных`.
 
 ### 3) Страница бота (`tg-poll-bot.html`)
