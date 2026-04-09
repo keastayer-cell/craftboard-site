@@ -56,16 +56,21 @@ python3 -m http.server 8000
 
 ## Продакшен-деплой
 
-Деплой выполняется GitHub Actions (`Deploy Site`) при push в `main`:
-- SSH на VPS (через `VPS_HOST`, `VPS_USER`, `DEPLOY_KEY`)
-- переход в `/var/www/craftboard`
-- `git fetch origin && git reset --hard origin/main`
+Текущий web root на сервере: `/var/www/html` (nginx).
+
+Быстрое ручное обновление:
+
+```bash
+scp README.md index.html server.html tg-poll-bot.html root@195.133.49.214:/var/www/html/
+```
+
+Если используется GitHub Actions для автодеплоя, в workflow путь должен совпадать с nginx root (`/var/www/html`).
 
 Требования на сервере:
 - установлен `git`;
-- `/var/www/craftboard` - это git-репозиторий `keastayer-cell/craftboard-site`;
+- либо настроен git-репозиторий в каталоге деплоя, либо копирование файлов по SSH;
 - ключ из секрета `DEPLOY_KEY` имеет доступ к репозиторию;
-- веб-сервер отдает статические файлы из `/var/www/craftboard`.
+- веб-сервер отдает статические файлы из `/var/www/html`.
 
 ## Лицензия
 
