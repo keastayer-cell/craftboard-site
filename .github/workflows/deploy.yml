@@ -6,7 +6,6 @@ on:
       - main
     paths:
       - "craftboard-react/**"
-      - "README.md"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
@@ -48,7 +47,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "craftboard-dist.tgz,README.md"
+          source: "craftboard-dist.tgz"
           target: "/tmp"
 
       - name: Deploy on VPS
@@ -73,9 +72,6 @@ jobs:
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/server.html"
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/tg-poll-bot.html"
 
-            # README is rendered by tg-poll-bot page.
-            cp /tmp/README.md "$RELEASE_DIR/README.md"
-
             if [ -d /var/www/html ]; then
               tar -czf "$BACKUP_DIR/html_pre_deploy_${TS}.tar.gz" -C /var/www html
             fi
@@ -87,5 +83,5 @@ jobs:
             nginx -t
             systemctl reload nginx || systemctl restart nginx
 
-            rm -f /tmp/craftboard-dist.tgz /tmp/README.md
+            rm -f /tmp/craftboard-dist.tgz
             echo "Deploy completed: ${TS}"
