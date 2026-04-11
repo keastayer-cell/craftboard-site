@@ -34,7 +34,7 @@ export default function BotPage() {
   useEffect(() => {
     const run = async () => {
       try {
-        const r = await fetch('/README.md', { cache: 'no-store' })
+        const r = await fetch('https://raw.githubusercontent.com/keastayer-cell/tg-poll-bot/main/README.md', { cache: 'no-store' })
         if (!r.ok) throw new Error('README not found')
         const md = await r.text()
         setHtml(marked.parse(stripHiddenSections(md)))
