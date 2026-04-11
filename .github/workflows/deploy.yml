@@ -1,22 +1,91 @@
-name: Deploy Site
+name: Deploy Craftboard React
 
 on:
   push:
     branches:
       - main
+    paths:
+      - "craftboard-react/**"
+      - "README.md"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-craftboard-production
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+
     steps:
-      - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: craftboard-react/package-lock.json
+
+      - name: Install dependencies
+        working-directory: craftboard-react
+        run: npm ci
+
+      - name: Build React app
+        working-directory: craftboard-react
+        run: npm run build
+
+      - name: Create deploy archive
+        run: |
+          tar -czf craftboard-dist.tgz -C craftboard-react/dist .
+
+      - name: Upload artifacts to VPS
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
+          source: "craftboard-dist.tgz,README.md"
+          target: "/tmp"
+
+      - name: Deploy on VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.DEPLOY_KEY }}
+          script_stop: true
           script: |
-            cd /var/www/html
-            git fetch origin
-            git reset --hard origin/main
-            echo "Site deployed successfully at $(date)"
+            set -euo pipefail
+
+            TS=$(date +%Y%m%d_%H%M%S)
+            RELEASE_DIR="/var/www/releases/react_${TS}"
+            BACKUP_DIR="/var/www/backups"
+
+            mkdir -p /var/www/releases "$BACKUP_DIR" "$RELEASE_DIR"
+
+            tar -xzf /tmp/craftboard-dist.tgz -C "$RELEASE_DIR"
+
+            # Keep legacy entrypoints mapped to SPA shell.
+            cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/server.html"
+            cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/tg-poll-bot.html"
+
+            # README is rendered by tg-poll-bot page.
+            cp /tmp/README.md "$RELEASE_DIR/README.md"
+
+            if [ -d /var/www/html ]; then
+              tar -czf "$BACKUP_DIR/html_pre_deploy_${TS}.tar.gz" -C /var/www html
+            fi
+
+            find /var/www/html -mindepth 1 -maxdepth 1 -exec rm -rf {} +
+            cp -a "$RELEASE_DIR"/. /var/www/html/
+            chown -R root:root /var/www/html
+
+            nginx -t
+            systemctl reload nginx || systemctl restart nginx
+
+            rm -f /tmp/craftboard-dist.tgz /tmp/README.md
+            echo "Deploy completed: ${TS}"

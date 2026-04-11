@@ -492,7 +492,12 @@
     function openModal() {
       const modal = document.getElementById('authModal');
       modal.classList.add('active');
-      setTimeout(() => document.getElementById('pwdInput').focus(), 50);
+      // Ensure focus lands in the input after modal animation/layout settles.
+      setTimeout(() => {
+        const input = document.getElementById('pwdInput');
+        input.focus();
+        input.select();
+      }, 80);
     }
 
     function closeModal() {
@@ -515,7 +520,8 @@
       e.preventDefault();
       const inp = document.getElementById('pwdInput');
       const err = document.getElementById('pwdError');
-      if (btoa(inp.value) === _k) {
+      const entered = (inp.value || '').trim();
+      if (entered === atob(_k)) {
         closeModal();
         window.location.href = 'server.html';
       } else {
