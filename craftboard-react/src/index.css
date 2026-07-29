@@ -55,6 +55,7 @@ a { color: inherit; }
 .tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
 .tag { background: #1f1f2e; color: #a78bfa; border: 1px solid #2d2d45; border-radius: 999px; padding: 4px 12px; font-size: 12px; }
 .status { margin-top: 12px; color: #34d399; font-size: 13px; }
+.status-paused { color: #fbbf24; }
 
 .server-badge {
   position: fixed;
