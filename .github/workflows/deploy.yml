@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "craftboard-react/**"
+      - "ops/**"
       - ".github/workflows/deploy.yml"
   workflow_dispatch:
 
@@ -20,10 +21,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: "20"
           cache: "npm"
@@ -61,10 +62,11 @@ jobs:
             set -euo pipefail
 
             TS=$(date +%Y%m%d_%H%M%S)
-            RELEASE_DIR="/var/www/releases/react_${TS}"
-            BACKUP_DIR="/var/www/backups"
+            RELEASES_DIR="/var/www/craftboard/releases"
+            RELEASE_DIR="${RELEASES_DIR}/${TS}"
+            CURRENT_LINK="/var/www/craftboard/current"
 
-            mkdir -p /var/www/releases "$BACKUP_DIR" "$RELEASE_DIR"
+            mkdir -p "$RELEASES_DIR" "$RELEASE_DIR"
 
             tar -xzf /tmp/craftboard-dist.tgz -C "$RELEASE_DIR"
 
@@ -72,16 +74,18 @@ jobs:
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/server.html"
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/tg-poll-bot.html"
 
-            if [ -d /var/www/html ]; then
-              tar -czf "$BACKUP_DIR/html_pre_deploy_${TS}.tar.gz" -C /var/www html
-            fi
-
-            find /var/www/html -mindepth 1 -maxdepth 1 -exec rm -rf {} +
-            cp -a "$RELEASE_DIR"/. /var/www/html/
-            chown -R root:root /var/www/html
+            chown -R root:www-data "$RELEASE_DIR"
+            ln -sfn "$RELEASE_DIR" "${CURRENT_LINK}.new"
+            mv -Tf "${CURRENT_LINK}.new" "$CURRENT_LINK"
 
             nginx -t
             systemctl reload nginx || systemctl restart nginx
+
+            find "$RELEASES_DIR" -mindepth 1 -maxdepth 1 -type d -printf '%T@ %p\n' \
+              | sort -nr \
+              | tail -n +6 \
+              | cut -d' ' -f2- \
+              | xargs -r rm -rf
 
             rm -f /tmp/craftboard-dist.tgz
             echo "Deploy completed: ${TS}"

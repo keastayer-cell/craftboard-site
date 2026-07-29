@@ -1,19 +1,16 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 
 export default function HomePage() {
   const [open, setOpen] = useState(false)
   const [pwd, setPwd] = useState('')
   const [error, setError] = useState('')
-  const navigate = useNavigate()
-
   const submitPassword = (e) => {
     e.preventDefault()
     if ((pwd || '').trim() === '2113') {
       setOpen(false)
       setPwd('')
       setError('')
-      navigate('/server.html')
+      window.location.assign('/server.html')
       return
     }
     setError('Неверный пароль')
@@ -50,12 +47,16 @@ export default function HomePage() {
       <button className="server-badge" onClick={() => setOpen(true)}>
         <div className="server-badge-title">🖥 ServerConfig</div>
         <div className="server-badge-row"><span className="dot" /> Ubuntu 24.04 LTS</div>
-        <div className="server-badge-row">nginx 1.24 · certbot 2.9</div>
-        <div className="server-badge-row server-badge-ip">195.133.49.214</div>
+        <div className="server-badge-row">Selectel · 2 vCPU · 2 GB RAM</div>
+        <div className="server-badge-row server-badge-ip">139.100.237.243</div>
       </button>
 
       <header className="hero-header">
         <h1>CraftBoard</h1>
+        <p>
+          Небольшая живая витрина моих проектов. Собрал ради интереса,
+          без больших планов — а она взяла и работает.
+        </p>
       </header>
 
       <div className="grid">

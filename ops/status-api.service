@@ -1,0 +1,16 @@
+[Unit]
+Description=CraftBoard status API
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/status_api/status.py
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
