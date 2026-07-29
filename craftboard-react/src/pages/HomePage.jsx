@@ -73,12 +73,7 @@ export default function HomePage() {
           <div className="status">Работает на сервере</div>
         </a>
 
-        <a
-          className="card"
-          href="https://github.com/keastayer-cell/monitoring"
-          target="_blank"
-          rel="noreferrer"
-        >
+        <a className="card" href="/uptime-monitor.html">
           <div className="card-icon">📡</div>
           <h2>Uptime Monitor</h2>
           <p>Сервис для проверки доступности сайтов, systemd-сервисов и Telegram Bot API.</p>

@@ -73,6 +73,7 @@ jobs:
             # Keep legacy entrypoints mapped to SPA shell.
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/server.html"
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/tg-poll-bot.html"
+            cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/uptime-monitor.html"
 
             chown -R root:www-data "$RELEASE_DIR"
             ln -sfn "$RELEASE_DIR" "${CURRENT_LINK}.new"
