@@ -264,32 +264,52 @@ a { color: inherit; }
 
 .md-body table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 0.88rem;
-  margin: 14px 0;
+  margin: 18px 0 28px;
+  background: #12121a;
+  border: 1px solid #2d2d45;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
 .md-body th {
   text-align: left;
-  color: #6b7280;
-  font-weight: 500;
-  padding: 8px 12px;
-  border-bottom: 1px solid #1f1f2e;
+  color: #c4b5fd;
+  background: #1a1a28;
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  border-bottom: 1px solid #2d2d45;
 }
 
 .md-body td {
-  padding: 9px 12px;
-  color: #9ca3af;
-  border-bottom: 1px solid #1a1a28;
+  padding: 12px 16px;
+  color: #b6bac5;
+  border-bottom: 1px solid #242434;
+  vertical-align: top;
+  line-height: 1.55;
 }
 
 .md-body tr:last-child td {
   border-bottom: none;
 }
 
+.md-body tbody tr:nth-child(even) {
+  background: #15151f;
+}
+
+.md-body tbody tr:hover {
+  background: #1b1b29;
+}
+
 .md-body td:first-child {
-  color: #e2e2e2;
-  font-weight: 500;
+  color: #f0f0f0;
+  font-weight: 600;
+  white-space: nowrap;
+  width: 1%;
 }
 
 .md-body hr {
