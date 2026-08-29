@@ -1,9 +1,48 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+
+const MONITOR_SERVICE = 'uptime-monitor.timer'
+
+function monitorStatusLabel(state) {
+  if (state === 'active') return 'Работает на сервере'
+  if (state === 'loading') return 'Проверяем состояние...'
+  if (state === 'unknown') return 'Статус временно недоступен'
+  return 'Сервис остановлен'
+}
 
 export default function HomePage() {
   const [open, setOpen] = useState(false)
   const [pwd, setPwd] = useState('')
   const [error, setError] = useState('')
+  const [monitorState, setMonitorState] = useState('loading')
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadMonitorState = async () => {
+      try {
+        const response = await fetch('/api/status', { cache: 'no-store' })
+        if (!response.ok) throw new Error(`HTTP ${response.status}`)
+        const data = await response.json()
+        if (!cancelled) setMonitorState(data.services?.[MONITOR_SERVICE] || 'unknown')
+      } catch {
+        if (!cancelled) setMonitorState('unknown')
+      }
+    }
+
+    loadMonitorState()
+    const timer = setInterval(loadMonitorState, 30000)
+    return () => {
+      cancelled = true
+      clearInterval(timer)
+    }
+  }, [])
+
+  const monitorStatusClass = monitorState === 'active'
+    ? 'status'
+    : monitorState === 'loading' || monitorState === 'unknown'
+      ? 'status status-pending'
+      : 'status status-down'
+
   const submitPassword = (e) => {
     e.preventDefault()
     if ((pwd || '').trim() === '2113') {
@@ -83,7 +122,9 @@ export default function HomePage() {
             <span className="tag">systemd</span>
             <span className="tag">Telegram</span>
           </div>
-          <div className="status status-paused">Перенесён · запуск отключён</div>
+          <div className={monitorStatusClass} aria-live="polite">
+            {monitorStatusLabel(monitorState)}
+          </div>
         </a>
       </div>
     </div>
