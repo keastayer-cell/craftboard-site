@@ -58,10 +58,16 @@ a { color: inherit; }
 .status-pending { color: #fbbf24; }
 .status-down { color: #f87171; }
 
+.server-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: -44px 0 32px;
+  align-items: stretch;
+}
 .server-badge {
-  position: fixed;
-  top: 16px;
-  left: 16px;
+  flex: 0 1 300px;
+  min-width: 0;
   border: 1px solid #2d2d45;
   border-radius: 12px;
   background: #12121a;
@@ -69,6 +75,20 @@ a { color: inherit; }
   padding: 10px 14px;
   text-align: left;
   cursor: pointer;
+}
+.server-badge-projects {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid #2d2d45;
+  font-size: 12px;
+  line-height: 1.7;
+  color: #c4b5fd;
+}
+.server-badge-projects span { display: block; }
+.server-badge:hover { border-color: #a78bfa; }
+.server-badge:focus-visible { outline: 2px solid #a78bfa; outline-offset: 3px; }
+@media (max-width: 640px) {
+  .server-badge { flex: 1 1 240px; }
 }
 .server-badge-title { font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: .08em; }
 .server-badge-row { margin-top: 3px; font-size: 13px; color: #9ca3af; }

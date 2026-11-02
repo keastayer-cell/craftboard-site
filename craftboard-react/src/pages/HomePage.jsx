@@ -93,12 +93,29 @@ export default function HomePage() {
         </div>
       )}
 
-      <button className="server-badge" onClick={() => setOpen(true)}>
-        <div className="server-badge-title">🖥 ServerConfig</div>
-        <div className="server-badge-row"><span className="dot" /> Ubuntu 24.04 LTS</div>
-        <div className="server-badge-row">Selectel · 2 vCPU · 2 GB RAM</div>
-        <div className="server-badge-row server-badge-ip">139.100.237.243</div>
-      </button>
+      <div className="server-badges" aria-label="Серверы и размещённые проекты">
+        <button className="server-badge" onClick={() => setOpen(true)}>
+          <div className="server-badge-title">🖥 ServerConfig · Selectel</div>
+          <div className="server-badge-row">Ubuntu 24.04 LTS</div>
+          <div className="server-badge-row">2 vCPU · 2 GB RAM</div>
+          <div className="server-badge-row server-badge-ip">139.100.237.243</div>
+          <div className="server-badge-projects">
+            <span>CraftBoard · VK-бот</span>
+            <span>BG Foot · тест</span>
+            <span>Efgen Bosh · тест</span>
+          </div>
+        </button>
+        <button className="server-badge" onClick={() => setOpen(true)}>
+          <div className="server-badge-title">🖥 ServerConfig · DigitalOcean</div>
+          <div className="server-badge-row">Ubuntu 26.04.1 LTS · Амстердам</div>
+          <div className="server-badge-row">1 vCPU · 512 MB RAM</div>
+          <div className="server-badge-row server-badge-ip">178.62.199.241</div>
+          <div className="server-badge-projects">
+            <span>Telegram Poll Bot</span>
+            <span>Uptime Monitor</span>
+          </div>
+        </button>
+      </div>
 
       <header className="hero-header">
         <h1>CraftBoard</h1>
