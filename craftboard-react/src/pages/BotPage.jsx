@@ -1,54 +1,42 @@
-import { useEffect, useState } from 'react'
-import { marked } from 'marked'
+import BotDetails from '../components/BotDetails'
 
-function stripHiddenSections(markdown) {
-  const hiddenTitles = [
-    'Stage тест без остановки прода',
-    'Как работаем с Copilot',
-  ]
-
-  const lines = markdown.split('\n')
-  const out = []
-  let skip = false
-
-  for (const line of lines) {
-    const heading = line.match(/^##\s+(.+)$/)
-    if (heading) {
-      const title = heading[1].trim()
-      if (hiddenTitles.includes(title)) {
-        skip = true
-        continue
-      }
-      skip = false
-    }
-
-    if (!skip) out.push(line)
-  }
-
-  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n'
+const PROJECT = {
+  title: 'Telegram Poll Bot', icon: '🤖', source: 'project_services', service: 'tg-poll-bot',
+  host: 'DigitalOcean · Амстердам · 178.62.199.241', serverPage: '/server-amsterdam.html',
+  tags: ['Python', 'Telegram Bot API', 'APScheduler', 'systemd'],
+  description: 'Бот для групповой записи на футбол: создаёт опросы, считает участников и приглашённых, следит за кворумом и напоминает об игре.',
+  steps: [
+    'В день игры бот публикует опрос в групповом чате по заданному расписанию.',
+    'Участники голосуют в Telegram-опросе и добавляют приглашённых сообщением +1.',
+    'Бот сообщает о наборе кворума, предупреждает о потере участников и отправляет напоминания.',
+    'В установленное время опрос закрывается. Голоса и настройки сохраняются между перезапусками.',
+  ],
+  sections: [
+    { title: 'Голоса и приглашённые', items: [
+      'Кворум по умолчанию — 10 человек. При 9 бот просит ещё одного, при 10 сообщает, что команда собрана.',
+      'После набора бот продолжает следить за отказами и сообщает, если кворум потерян.',
+      'Любой участник может написать +1, +1 Фамилия или +1Фамилия. Без подписи гость сохраняется от имени пригласившего.',
+      'Приглашённые учитываются в общем составе, но не меняют число голосов внутри самого Telegram-опроса. Команда /status показывает их отдельно.',
+      'Удалять приглашённых могут администраторы через /minus1 или сообщение -1.',
+    ] },
+    { title: 'Напоминания и объявления', items: [
+      'В дедлайн администраторы получают результат набора. Напоминание об игре отправляется, если кворум набран.',
+      'Администратор может опубликовать объявление через /announce, отправив следующим сообщением нужный текст. /cancel отменяет ввод.',
+      'Время и дни опроса, дедлайна, закрытия и напоминаний меняются командами, без перезапуска.',
+    ] },
+    { title: 'Сохранение данных и контроль связи', paragraphs: [
+      'Бот сохраняет голоса, приглашённых и расписание. При повреждении основного файла состояния использует резервную копию.',
+      'Связь с Telegram проверяется при запуске и каждый час; в дни опросов — дополнительно каждые 15 минут. После трёх неудачных проверок бот пытается предупредить администраторов, а после трёх успешных сообщает о восстановлении тем, кто получил предупреждение.',
+    ] },
+  ],
+  commands: [
+    ['/start', 'Краткая справка', 'Все'], ['/status', 'Голоса и приглашённые текущего опроса', 'Все'],
+    ['+1 [ФИО]', 'Добавить приглашённого', 'Все'], ['/poll', 'Создать опрос вручную', 'Администратор'],
+    ['/plus1 [ФИО]', 'Добавить приглашённого командой', 'Администратор'], ['/minus1 [ФИО]', 'Удалить приглашённого', 'Администратор'],
+    ['/announce · /cancel', 'Опубликовать объявление или отменить ввод', 'Администратор'],
+    ['/settime', 'Показать расписание', 'Администратор'], ['/settime poll 09:50', 'Изменить время опроса', 'Администратор'],
+    ['/setdays poll wed,sun', 'Изменить дни опроса', 'Администратор'],
+  ],
+  schedule: [['Опрос', 'Среда и воскресенье · 09:50'], ['Дедлайн', '15:00'], ['Закрытие', '20:00'], ['Напоминания', 'Среда · 19:45; воскресенье · 18:15']],
 }
-
-export default function BotPage() {
-  const [html, setHtml] = useState('<p>Загрузка...</p>')
-
-  useEffect(() => {
-    const run = async () => {
-      try {
-        const r = await fetch('https://raw.githubusercontent.com/keastayer-cell/tg-poll-bot/main/README.md', { cache: 'no-store' })
-        if (!r.ok) throw new Error('README not found')
-        const md = await r.text()
-        setHtml(marked.parse(stripHiddenSections(md)))
-      } catch {
-        setHtml('<p>Не удалось загрузить README.</p>')
-      }
-    }
-    run()
-  }, [])
-
-  return (
-    <div className="page page-narrow">
-      <a className="back" href="/">← Все проекты</a>
-      <div className="markdown md-body" dangerouslySetInnerHTML={{ __html: html }} />
-    </div>
-  )
-}
+export default function BotPage() { return <BotDetails project={PROJECT} /> }
