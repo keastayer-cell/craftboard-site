@@ -38,3 +38,18 @@ Push в `main` запускает GitHub Actions. Workflow собирает пр
 - `nginx-craftboard.conf` — виртуальный хост nginx;
 - `status.py` — локальный API статуса на `127.0.0.1:9191`;
 - `status-api.service` — systemd unit для API.
+
+## Статусы после переноса бота
+
+Сайт и `/api/status` работают на `139.100.237.243`. Метрики и `services`
+относятся к этому VPS. Карточки проектов используют `project_services`,
+полученные с `http://178.62.199.241:9192/status`: Telegram-бот и
+`uptime-monitor.timer` проверяются на новом VPS. При недоступности источника
+обе карточки показывают неизвестный статус. Таймер между проверками остаётся
+`active`; состояние oneshot-сервиса monitoring для карточки не используется.
+
+На новом VPS отдельно установлен `ops/project-status.py` с unit
+`ops/project-status.service` в `/opt/project-status/`. Он работает от `nobody`
+и отдаёт только состояния двух сервисов и время ответа, без секретов и данных бота.
+Автодеплой сайта обновляет локальный status API на старом VPS; endpoint нового
+VPS устанавливается отдельно при изменении `ops/project-status.py`.

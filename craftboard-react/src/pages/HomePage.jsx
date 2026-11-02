@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const MONITOR_SERVICE = 'uptime-monitor.timer'
+const BOT_SERVICE = 'tg-poll-bot'
 
 function monitorStatusLabel(state) {
   if (state === 'active') return 'Работает на сервере'
@@ -13,7 +14,8 @@ export default function HomePage() {
   const [open, setOpen] = useState(false)
   const [pwd, setPwd] = useState('')
   const [error, setError] = useState('')
-  const [monitorState, setMonitorState] = useState('loading')
+  const [services, setServices] = useState({})
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     let cancelled = false
@@ -23,9 +25,15 @@ export default function HomePage() {
         const response = await fetch('/api/status', { cache: 'no-store' })
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         const data = await response.json()
-        if (!cancelled) setMonitorState(data.services?.[MONITOR_SERVICE] || 'unknown')
+        if (!cancelled) {
+          setServices(data.project_services || {})
+          setLoading(false)
+        }
       } catch {
-        if (!cancelled) setMonitorState('unknown')
+        if (!cancelled) {
+          setServices({})
+          setLoading(false)
+        }
       }
     }
 
@@ -37,9 +45,11 @@ export default function HomePage() {
     }
   }, [])
 
-  const monitorStatusClass = monitorState === 'active'
+  const monitorState = loading ? 'loading' : services[MONITOR_SERVICE] || 'unknown'
+  const botState = loading ? 'loading' : services[BOT_SERVICE] || 'unknown'
+  const statusClass = (state) => state === 'active'
     ? 'status'
-    : monitorState === 'loading' || monitorState === 'unknown'
+    : state === 'loading' || state === 'unknown'
       ? 'status status-pending'
       : 'status status-down'
 
@@ -109,7 +119,10 @@ export default function HomePage() {
             <span className="tag">APScheduler</span>
             <span className="tag">VPS</span>
           </div>
-          <div className="status">Работает на сервере</div>
+          <div className={statusClass(botState)} aria-live="polite">
+            {monitorStatusLabel(botState)}
+          </div>
+          <div className="service-meta">VPS · 178.62.199.241</div>
         </a>
 
         <a className="card" href="/uptime-monitor.html">
@@ -122,9 +135,10 @@ export default function HomePage() {
             <span className="tag">systemd</span>
             <span className="tag">Telegram</span>
           </div>
-          <div className={monitorStatusClass} aria-live="polite">
+          <div className={statusClass(monitorState)} aria-live="polite">
             {monitorStatusLabel(monitorState)}
           </div>
+          <div className="service-meta">VPS · 178.62.199.241</div>
         </a>
       </div>
     </div>

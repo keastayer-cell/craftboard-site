@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 import json
+import os
+from urllib.request import urlopen
 import shutil
 import subprocess
 import time
@@ -34,6 +36,21 @@ def cpu_percent():
     return round((1 - (idle_after - idle_before) / elapsed) * 100)
 
 
+def project_services():
+    url = os.getenv("PROJECT_STATUS_URL", "http://178.62.199.241:9192/status")
+    try:
+        with urlopen(url, timeout=3) as response:
+            data = json.load(response)
+        if not isinstance(data, dict):
+            raise ValueError("Invalid project status")
+        return {
+            name: data.get("services", {}).get(name, "unknown")
+            for name in ("tg-poll-bot", "uptime-monitor.timer")
+        }
+    except (OSError, ValueError, TypeError, AttributeError):
+        return {name: "unknown" for name in ("tg-poll-bot", "uptime-monitor.timer")}
+
+
 def status():
     mem = {}
     with open("/proc/meminfo", encoding="utf-8") as handle:
@@ -60,6 +77,8 @@ def status():
             "percent": round((disk.total - disk.free) / disk.total * 100),
         },
         "services": {name: service_state(name) for name in SERVICES},
+        "project_services": project_services(),
+        "project_host": "178.62.199.241",
         "timestamp": int(time.time()),
     }
 

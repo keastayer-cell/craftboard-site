@@ -48,7 +48,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.DEPLOY_KEY }}
-          source: "craftboard-dist.tgz"
+          source: "craftboard-dist.tgz,ops/status.py,ops/status-api.service"
           target: "/tmp"
 
       - name: Deploy on VPS
@@ -60,6 +60,14 @@ jobs:
           script_stop: true
           script: |
             set -euo pipefail
+
+            install -d -m 0755 /opt/status_api
+            install -m 0644 /tmp/ops/status.py /opt/status_api/status.py
+            install -m 0644 /tmp/ops/status-api.service /etc/systemd/system/status-api.service
+            python3 -m py_compile /opt/status_api/status.py
+            systemctl daemon-reload
+            systemctl enable --now status-api.service
+            systemctl restart status-api.service
 
             TS=$(date +%Y%m%d_%H%M%S)
             RELEASES_DIR="/var/www/craftboard/releases"
