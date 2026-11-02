@@ -1,35 +1,27 @@
 import { useEffect, useState } from 'react'
 
 const FILE_TREE_LINES = [
-  '/',
-  '├── opt/',
-  '│   ├── bot_tg/           # Telegram-бот',
-  '│   ├── uptime-monitor/   # мониторинг',
-  '│   ├── football-stats-app/',
-  '│   └── status_api/       # данные для этой страницы',
-  '├── etc/',
-  '│   ├── nginx/            # конфиг nginx',
-  '│   └── systemd/system/',
-  '│       ├── tg-poll-bot.service',
-  '│       └── status-api.service',
-  '└── var/',
-  '    └── www/craftboard/   # этот сайт',
+  '178.62.199.241 · DigitalOcean, Амстердам',
+  '├── /opt/bot_tg/          # Telegram-бот',
+  '├── /opt/uptime-monitor/  # проверки каждый час',
+  '└── /opt/project-status/  # статусы проектов',
+  '',
+  '139.100.237.243 · Selectel',
+  '├── /opt/vk-poll-bot/     # VK-бот',
+  '├── /opt/status_api/      # API этой страницы',
+  '└── /var/www/craftboard/  # этот сайт',
 ]
 
 const USEFUL_COMMANDS_LINES = [
-  '# подключиться',
+  '# новый VPS: Telegram-бот и monitoring',
+  'ssh root@178.62.199.241',
+  'systemctl status tg-poll-bot uptime-monitor.timer',
+  'journalctl -u tg-poll-bot -n 50 --no-pager',
+  '',
+  '# старый VPS: сайт и VK-бот',
   'ssh root@139.100.237.243',
-  '',
-  '# статус nginx',
-  'systemctl status nginx',
-  '',
-  '# статус бота',
-  'systemctl status tg-poll-bot',
-  '',
-  '# логи бота',
-  'journalctl -u tg-poll-bot -f',
-  '',
-  '# свободное место',
+  'systemctl status nginx vk-poll-bot',
+  'journalctl -u vk-poll-bot -n 50 --no-pager',
   'df -h /',
 ]
 
@@ -39,7 +31,8 @@ function FallbackStatus() {
     cpu: '—',
     ram: { used_mb: '—', total_mb: '—', percent: '—' },
     disk: { used_gb: '—', total_gb: '—', percent: '—' },
-    services: { nginx: 'unknown', 'tg-poll-bot': 'unknown' },
+    services: { nginx: 'unknown', 'vk-poll-bot': 'unknown' },
+    project_services: {},
   }
 }
 
@@ -57,10 +50,11 @@ export default function ServerPage() {
         const next = await r.json()
         if (cancelled) return
         setData(next)
-        setMeta(`Online · 139.100.237.243 · ${new Date().toLocaleTimeString('ru-RU')}`)
+        setMeta(`Обновлено · ${new Date(next.timestamp * 1000).toLocaleTimeString('ru-RU')}`)
       } catch {
         if (cancelled) return
-        setMeta('Нет данных')
+        setData(FallbackStatus())
+        setMeta('Статус временно недоступен')
       }
     }
 
@@ -78,7 +72,7 @@ export default function ServerPage() {
     return 'badge badge-red'
   }
 
-  const badgeLabel = (state) => (state === 'active' ? 'running' : (state || 'unknown'))
+  const badgeLabel = (state) => state === 'active' ? 'Работает' : !state || state === 'unknown' ? 'Нет данных' : 'Остановлен'
 
   return (
     <div className="page page-narrow">
@@ -86,20 +80,15 @@ export default function ServerPage() {
 
       <div className="hero">
         <div className="hero-icon">🖥️</div>
-        <h1>VPS сервер</h1>
-        <p>Новый сервер в Selectel под управлением Ubuntu 24.04 LTS. Здесь живут бот, мониторинг, футбольный проект и сам CraftBoard.</p>
+        <h1>Серверы и сервисы</h1>
+        <p>Telegram-бот и monitoring работают на новом VPS в Амстердаме. Сайт CraftBoard и VK-бот остаются на сервере Selectel.</p>
         <div className="status"><span className="dot" />{meta}</div>
-        <div className="tags">
-          <span className="tag">Ubuntu 24.04 LTS</span>
-          <span className="tag">nginx 1.24.0</span>
-          <span className="tag">certbot 2.9.0</span>
-          <span className="tag">Python 3.12</span>
-          <span className="tag">systemd</span>
-        </div>
+
       </div>
 
       <section className="section">
-        <h2>Конфигурация</h2>
+        <h2>Selectel · 139.100.237.243</h2>
+        <p className="service-meta">Метрики ниже относятся к серверу сайта и VK-бота.</p>
         <div className="spec-grid">
           <div className="spec-item"><div className="spec-label">Провайдер</div><div className="spec-value">Selectel</div></div>
           <div className="spec-item"><div className="spec-label">IP адрес</div><div className="spec-value">139.100.237.243</div></div>
@@ -114,7 +103,7 @@ export default function ServerPage() {
       </section>
 
       <section className="section">
-        <h2>Что установлено</h2>
+        <h2>Окружение Selectel</h2>
         <table className="server-table">
           <thead>
             <tr><th>Компонент</th><th>Версия / Путь</th></tr>
@@ -131,7 +120,7 @@ export default function ServerPage() {
       </section>
 
       <section className="section">
-        <h2>Сервисы</h2>
+        <h2>Сайт и VK-бот · Selectel</h2>
         <div className="service-list">
           <div className="service-item">
             <div>
@@ -142,23 +131,37 @@ export default function ServerPage() {
           </div>
           <div className="service-item">
             <div>
-              <div className="service-name">tg-poll-bot</div>
-              <div className="service-meta">Telegram бот · /opt/bot_tg/ · systemd</div>
+              <div className="service-name">vk-poll-bot</div>
+              <div className="service-meta">VK-бот · /opt/vk-poll-bot/ · 139.100.237.243</div>
             </div>
-            <span className={badgeClass(data.services?.['tg-poll-bot'])}>{badgeLabel(data.services?.['tg-poll-bot'])}</span>
-          </div>
-          <div className="service-item">
-            <div>
-              <div className="service-name">uptime-monitor.timer</div>
-              <div className="service-meta">Проверка доступности проектов · /opt/uptime-monitor/ · systemd</div>
-            </div>
-            <span className={badgeClass(data.services?.['uptime-monitor.timer'])}>{badgeLabel(data.services?.['uptime-monitor.timer'])}</span>
+            <span className={badgeClass(data.services?.['vk-poll-bot'])}>{badgeLabel(data.services?.['vk-poll-bot'])}</span>
           </div>
         </div>
       </section>
 
       <section className="section">
-        <h2>Структура файлов на сервере</h2>
+        <h2>Telegram и monitoring · DigitalOcean</h2>
+        <p className="service-meta">178.62.199.241 · Амстердам. Статусы получены с нового VPS.</p>
+        <div className="service-list">
+          <div className="service-item">
+            <div>
+              <div className="service-name">tg-poll-bot</div>
+              <div className="service-meta">Telegram-бот · /opt/bot_tg/ · 178.62.199.241</div>
+            </div>
+            <span className={badgeClass(data.project_services?.['tg-poll-bot'])}>{badgeLabel(data.project_services?.['tg-poll-bot'])}</span>
+          </div>
+          <div className="service-item">
+            <div>
+              <div className="service-name">uptime-monitor.timer</div>
+              <div className="service-meta">Проверки каждый час · /opt/uptime-monitor/ · 178.62.199.241</div>
+            </div>
+            <span className={badgeClass(data.project_services?.['uptime-monitor.timer'])}>{badgeLabel(data.project_services?.['uptime-monitor.timer'])}</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="section">
+        <h2>Где что работает</h2>
         <pre className="code-block">{FILE_TREE_LINES.join('\n')}</pre>
       </section>
 

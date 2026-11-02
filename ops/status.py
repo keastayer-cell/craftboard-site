@@ -9,7 +9,7 @@ import time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 
-SERVICES = ("nginx", "tg-poll-bot", "uptime-monitor.timer")
+SERVICES = ("nginx", "vk-poll-bot")
 
 
 def command(*args):
