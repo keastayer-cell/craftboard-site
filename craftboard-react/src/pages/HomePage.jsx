@@ -12,6 +12,7 @@ function monitorStatusLabel(state) {
 
 export default function HomePage() {
   const [open, setOpen] = useState(false)
+  const [serverPage, setServerPage] = useState('/server-selectel.html')
   const [pwd, setPwd] = useState('')
   const [error, setError] = useState('')
   const [services, setServices] = useState({})
@@ -59,7 +60,7 @@ export default function HomePage() {
       setOpen(false)
       setPwd('')
       setError('')
-      window.location.assign('/server.html')
+      window.location.assign(serverPage)
       return
     }
     setError('Неверный пароль')
@@ -94,7 +95,7 @@ export default function HomePage() {
       )}
 
       <div className="server-badges" aria-label="Серверы и размещённые проекты">
-        <button className="server-badge" onClick={() => setOpen(true)}>
+        <button className="server-badge" onClick={() => { setServerPage('/server-selectel.html'); setOpen(true) }}>
           <div className="server-badge-title">🖥 ServerConfig · Selectel</div>
           <div className="server-badge-row">Ubuntu 24.04 LTS</div>
           <div className="server-badge-row">2 vCPU · 2 GB RAM</div>
@@ -105,7 +106,7 @@ export default function HomePage() {
             <span>Efgen Bosh · тест</span>
           </div>
         </button>
-        <button className="server-badge" onClick={() => setOpen(true)}>
+        <button className="server-badge" onClick={() => { setServerPage('/server-amsterdam.html'); setOpen(true) }}>
           <div className="server-badge-title">🖥 ServerConfig · DigitalOcean</div>
           <div className="server-badge-row">Ubuntu 26.04.1 LTS · Амстердам</div>
           <div className="server-badge-row">1 vCPU · 512 MB RAM</div>
