@@ -58,6 +58,37 @@ a { color: inherit; }
 .status-pending { color: #fbbf24; }
 .status-down { color: #f87171; }
 
+.project-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.project-card {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 5;
+  gap: 18px;
+  min-width: 0;
+  padding: 28px;
+  transition: border-color .15s ease, background .15s ease;
+}
+.project-card:hover { border-color: #6d5ba6; background: #191922; }
+.project-card:focus-visible { outline: 2px solid #a78bfa; outline-offset: 4px; }
+.project-card .card-icon { height: 44px; line-height: 44px; }
+.project-card h2 { margin: 0; font-size: clamp(20px, 2vw, 24px); line-height: 1.25; }
+.project-card p { margin: 0; line-height: 1.65; }
+.project-card .tags { margin: 0; align-content: start; align-items: start; }
+.project-card .tag { white-space: nowrap; }
+.card-footer { align-self: end; padding-top: 4px; }
+.card-footer .status { margin-top: 0; }
+.card-footer .service-meta { margin-top: 5px; }
+@media (max-width: 1000px) {
+  .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .project-grid { grid-template-columns: minmax(0, 1fr); }
+  .project-card { padding: 24px; }
+}
+
 .server-badges {
   display: flex;
   flex-wrap: wrap;

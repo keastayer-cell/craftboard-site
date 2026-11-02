@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
 
-const MONITOR_SERVICE = 'uptime-monitor.timer'
-const BOT_SERVICE = 'tg-poll-bot'
+const PROJECTS = [
+  { name: 'Telegram Poll Bot', icon: '🤖', href: '/tg-poll-bot.html', service: 'tg-poll-bot', host: '178.62.199.241', description: 'Опросы в Telegram: голоса участников, приглашённые и напоминания об игре.', tags: ['Python', 'Telegram API', 'APScheduler', 'systemd'] },
+  { name: 'Uptime Monitor', icon: '📡', href: '/uptime-monitor.html', service: 'uptime-monitor.timer', host: '178.62.199.241', description: 'Проверки сайтов, сервисов и Telegram API с уведомлениями о сбоях.', tags: ['Python', 'HTTP', 'Telegram API', 'systemd'] },
+  { name: 'VK Poll Bot', icon: '💬', href: '/vk-poll-bot.html', service: 'vk-poll-bot', host: '139.100.237.243', description: 'Опросы во ВКонтакте: запись на игру, приглашённые и составы команд.', tags: ['Python', 'VK API', 'APScheduler', 'systemd'] },
+]
 
 function monitorStatusLabel(state) {
   if (state === 'active') return 'Работает на сервере'
@@ -27,7 +30,7 @@ export default function HomePage() {
         if (!response.ok) throw new Error(`HTTP ${response.status}`)
         const data = await response.json()
         if (!cancelled) {
-          setServices(data.project_services || {})
+          setServices({ ...data.services, ...data.project_services })
           setLoading(false)
         }
       } catch {
@@ -46,8 +49,6 @@ export default function HomePage() {
     }
   }, [])
 
-  const monitorState = loading ? 'loading' : services[MONITOR_SERVICE] || 'unknown'
-  const botState = loading ? 'loading' : services[BOT_SERVICE] || 'unknown'
   const statusClass = (state) => state === 'active'
     ? 'status'
     : state === 'loading' || state === 'unknown'
@@ -126,38 +127,20 @@ export default function HomePage() {
         </p>
       </header>
 
-      <div className="grid">
-        <a className="card" href="/tg-poll-bot.html">
-          <div className="card-icon">🤖</div>
-          <h2>Telegram Poll Bot</h2>
-          <p>Бот для автоматического создания опросов в групповом чате.</p>
-          <div className="tags">
-            <span className="tag">Python</span>
-            <span className="tag">Telegram Bot API</span>
-            <span className="tag">APScheduler</span>
-            <span className="tag">VPS</span>
-          </div>
-          <div className={statusClass(botState)} aria-live="polite">
-            {monitorStatusLabel(botState)}
-          </div>
-          <div className="service-meta">VPS · 178.62.199.241</div>
-        </a>
-
-        <a className="card" href="/uptime-monitor.html">
-          <div className="card-icon">📡</div>
-          <h2>Uptime Monitor</h2>
-          <p>Сервис для проверки доступности сайтов, systemd-сервисов и Telegram Bot API.</p>
-          <div className="tags">
-            <span className="tag">Python</span>
-            <span className="tag">HTTP</span>
-            <span className="tag">systemd</span>
-            <span className="tag">Telegram</span>
-          </div>
-          <div className={statusClass(monitorState)} aria-live="polite">
-            {monitorStatusLabel(monitorState)}
-          </div>
-          <div className="service-meta">VPS · 178.62.199.241</div>
-        </a>
+      <div className="grid project-grid">
+        {PROJECTS.map((project) => {
+          const state = loading ? 'loading' : services[project.service] || 'unknown'
+          return <a className="card project-card" href={project.href} key={project.service}>
+            <div className="card-icon" aria-hidden="true">{project.icon}</div>
+            <h2>{project.name}</h2>
+            <p>{project.description}</p>
+            <div className="tags">{project.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div>
+            <div className="card-footer">
+              <div className={statusClass(state)} aria-live="polite">{monitorStatusLabel(state)}</div>
+              <div className="service-meta">VPS · {project.host}</div>
+            </div>
+          </a>
+        })}
       </div>
     </div>
   )

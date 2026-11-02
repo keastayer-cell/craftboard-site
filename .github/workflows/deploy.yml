@@ -83,6 +83,7 @@ jobs:
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/server-selectel.html"
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/server-amsterdam.html"
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/tg-poll-bot.html"
+            cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/vk-poll-bot.html"
             cp "$RELEASE_DIR/index.html" "$RELEASE_DIR/uptime-monitor.html"
 
             chown -R root:www-data "$RELEASE_DIR"
