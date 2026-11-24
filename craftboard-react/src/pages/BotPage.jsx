@@ -1,7 +1,7 @@
 import BotDetails from '../components/BotDetails'
 
 const PROJECT = {
-  title: 'Telegram Poll Bot', icon: '🤖', source: 'project_services', service: 'tg-poll-bot',
+  title: 'Telegram Poll Bot', icon: '🤖', serverId: 'amsterdam', service: 'tg-poll-bot',
   host: 'DigitalOcean · Амстердам · 178.62.199.241', serverPage: '/server-amsterdam.html',
   tags: ['Python', 'Telegram Bot API', 'APScheduler', 'systemd'],
   description: 'Бот для групповой записи на футбол: создаёт опросы, считает участников и приглашённых, следит за кворумом и напоминает об игре.',

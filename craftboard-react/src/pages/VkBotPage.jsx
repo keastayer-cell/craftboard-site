@@ -1,7 +1,7 @@
 import BotDetails from '../components/BotDetails'
 
 const PROJECT = {
-  title: 'VK Poll Bot', icon: '💬', source: 'services', service: 'vk-poll-bot',
+  title: 'VK Poll Bot', icon: '💬', serverId: 'selectel', service: 'vk-poll-bot',
   host: 'Selectel · 139.100.237.243', serverPage: '/server-selectel.html',
   tags: ['Python', 'VK Bots Long Poll', 'APScheduler', 'systemd'],
   description: 'Бот сообщества ВКонтакте для беседы «ФК Ушаково»: запись на игру, приглашённые, рейтинги, распределение по командам и статистика ответов.',

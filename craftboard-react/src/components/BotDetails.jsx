@@ -1,30 +1,19 @@
-import { useEffect, useState } from 'react'
+import useServerStatus from '../hooks/useServerStatus'
+import ServiceStatus from './ServiceStatus'
+import { formatTime } from '../status'
 
 export default function BotDetails({ project }) {
-  const [state, setState] = useState('loading')
-  useEffect(() => {
-    let cancelled = false
-    const load = async () => {
-      try {
-        const response = await fetch('/api/status', { cache: 'no-store' })
-        if (!response.ok) throw new Error('Нет данных')
-        const data = await response.json()
-        if (!cancelled) setState(data[project.source]?.[project.service] || 'unknown')
-      } catch { if (!cancelled) setState('unknown') }
-    }
-    load()
-    const timer = setInterval(load, 30000)
-    return () => { cancelled = true; clearInterval(timer) }
-  }, [project])
-  const label = state === 'active' ? 'Работает на сервере' : state === 'loading' ? 'Проверяем состояние...' : state === 'unknown' ? 'Статус временно недоступен' : 'Сервис остановлен'
-  const statusClass = state === 'active' ? 'status' : ['loading', 'unknown'].includes(state) ? 'status status-pending' : 'status status-down'
+  const { servers, loading } = useServerStatus()
+  const server = servers[project.serverId]
   return <div className="page page-narrow bot-details">
     <a className="back" href="/">← Все проекты</a>
     <header className="hero">
       <div className="hero-icon">{project.icon}</div>
       <h1>{project.title}</h1>
       <p>{project.description}</p>
-      <div className={statusClass} aria-live="polite">{label}</div>
+      <div className="status"><ServiceStatus server={server} name={project.service} loading={loading} /></div>
+      <p className="status-time">Последнее успешное обновление: {formatTime(server?.last_success_at)}</p>
+      <p className="section-note">Проверяется запуск службы systemd. Ответы бота на команды здесь не проверяются.</p>
       <div className="service-meta">{project.host}</div>
       <div className="tags">{project.tags.map((tag) => <span className="tag" key={tag}>{tag}</span>)}</div>
     </header>
