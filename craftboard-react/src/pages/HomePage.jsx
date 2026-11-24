@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import useServerStatus from '../hooks/useServerStatus'
-import ServerCard from '../components/ServerCard'
+import ServerBadge from '../components/ServerBadge'
 import ServiceStatus from '../components/ServiceStatus'
 import { formatTime } from '../status'
 
@@ -57,6 +57,13 @@ export default function HomePage() {
         </div>
       )}
 
+      <div className="server-badges" aria-label="Серверы и размещённые проекты">
+        {['selectel', 'amsterdam'].map((id) =>
+          <ServerBadge key={id} id={id} server={servers[id]} loading={loading}
+            onDetails={(href) => { setServerPage(href); setOpen(true) }} />
+        )}
+      </div>
+
       <header className="hero-header">
         <h1>CraftBoard</h1>
         <p>
@@ -65,16 +72,6 @@ export default function HomePage() {
         </p>
       </header>
 
-      <section className="servers-section" aria-labelledby="servers-title">
-        <h2 id="servers-title">Серверы</h2>
-        <p className="section-note">У каждого сервера свои показатели и службы. Данные обновляются каждые 30 секунд.</p>
-        <div className="servers-grid">{['selectel', 'amsterdam'].map((id) =>
-          <ServerCard key={id} id={id} server={servers[id]} loading={loading}
-            onDetails={(href) => { setServerPage(href); setOpen(true) }} />
-        )}</div>
-        <p className="section-note">Статус службы показывает состояние systemd. Ответы ботов на команды и доставку сообщений сайт не проверяет.</p>
-      </section>
-      <div className="projects-heading"><h2>Проекты</h2></div>
       <div className="grid project-grid">
         {PROJECTS.map((project) => {
           const server = servers[project.serverId]
